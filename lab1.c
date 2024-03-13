@@ -75,6 +75,58 @@ void make_info(FILE *out, char *dir, int depth)
   closedir(dp);
 }
 
+void restoreStructure(const char *infoFile, const char *rootPath)
+{
+  FILE *info = fopen(infoFile, "r");
+  if (!info)
+  {
+    perror("Failed to open information file");
+    exit(EXIT_FAILURE);
+  }
+
+  char line[256];
+  while (fgets(line, sizeof(line), info))
+  {
+    int isDir, fileSize, depth;
+    char itemName[256];
+
+    // Разбор строки информации
+    if (sscanf(line, "%d|%d|%d|%255[^\n]", &isDir, &fileSize, &depth, itemName) != 4)
+    {
+      fprintf(stderr, "Invalid format in information file\n");
+      exit(EXIT_FAILURE);
+    }
+
+    // Построение пути элемента
+    char itemPath[256];
+    snprintf(itemPath, sizeof(itemPath), "%s/%s", rootPath, itemName);
+
+    // Создание папки или файла
+    if (isDir)
+    {
+      printf("Creating directory: %s\n", itemPath);
+      mkdir(itemPath, 0755);
+    }
+    else
+    {
+      printf("Creating file: %s\n", itemPath);
+      FILE *file = fopen(itemPath, "wb");
+      if (!file)
+      {
+        perror("Failed to create file");
+        exit(EXIT_FAILURE);
+      }
+
+      // Здесь можно добавить чтение содержимого файла и запись в соответствии с fileSize
+      // ...
+
+      fclose(file);
+    }
+  }
+
+  fclose(info);
+}
+
 int main()
 {
 
@@ -85,6 +137,11 @@ int main()
   printf("\nDirectory scan of %s:\n", dirname);
   make_info(out, dirname, 0);
   printf("done.\n");
+
+  const char *infoFile = "out.txt";            // Путь к файлу с информационной частью
+  const char *rootPath = "restored_structure"; // Корневая папка для восстановления структуры
+
+  restoreStructure(infoFile, rootPath);
 
   exit(0);
 }
