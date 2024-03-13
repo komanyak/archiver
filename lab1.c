@@ -82,7 +82,7 @@ int main()
 
   char dirname[] = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/";
   FILE *out;
-  out = fopen("1.txt", "ab");
+  out = fopen("out.txt", "ab");
   // Обзор каталога /home
   printf("\nDirectory scan of %s:\n", dirname);
   make_info(out ,dirname, 0);
