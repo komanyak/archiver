@@ -24,7 +24,7 @@
 // while((c = fgetc(in)) != EOF) fputc(c, out);
 // exit(0);
 
-void archiver(FILE *out, char *dir, int depth)
+void make_info(FILE *out, char *dir, int depth)
 {
   DIR *dp;
   struct dirent *entry;
@@ -52,15 +52,20 @@ void archiver(FILE *out, char *dir, int depth)
      
       fprintf(out, "1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
     
-      printf("%*s%s/\n", depth, " ", entry->d_name);
+      printf("%*s%s/\n", depth*4+1, "", entry->d_name);
       //printf("1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
-      archiver(out, entry->d_name, depth + 1);
+      make_info(out, entry->d_name, depth + 1);
     }
     else
     {
+      if(strcmp(strrchr(entry->d_name, '.'), ".gg") == 0)
+      { 
+        // arch_func
+        printf("%*s%s is a TXT file\n", depth*4+1, "", entry->d_name);
+      }
 
       // записать в out "isDir(0 или 1)|file_size|file_name|"
-      printf("%*s%s\n", depth, " ", entry->d_name);
+      printf("%*s%s\n", depth*4+1, "", entry->d_name);
       // printf("0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
 
       fprintf(out, "0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
@@ -80,8 +85,10 @@ int main()
   out = fopen("1.txt", "ab");
   // Обзор каталога /home
   printf("\nDirectory scan of %s:\n", dirname);
-  archiver(out ,dirname, 0);
+  make_info(out ,dirname, 0);
   printf("done.\n");
 
   exit(0);
 }
+
+
