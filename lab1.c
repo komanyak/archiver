@@ -139,7 +139,7 @@ int main()
   printf("done.\n");
 
   const char *infoFile = "out.txt";            // Путь к файлу с информационной частью
-  const char *rootPath = "restored_structure"; // Корневая папка для восстановления структуры
+  const char *rootPath = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/unpack"; // Корневая папка для восстановления структуры
 
   restoreStructure(infoFile, rootPath);
 
