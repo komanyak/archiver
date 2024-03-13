@@ -70,7 +70,7 @@ void archiver(char *fname, char *dir, int depth)
   struct dirent *entry;
   struct stat statbuf;
   FILE *out;
-  out = fopen("file.out", "w");
+  out = fopen(fname, "w");
   if ((dp = opendir(dir)) == NULL)
   {
 
@@ -94,7 +94,7 @@ void archiver(char *fname, char *dir, int depth)
       fprintf(out, "1|%ld|%s|\n", statbuf.st_size, entry->d_name);
       // printf("%*s%s/\n", depth, "", entry->d_name);
       printf("1|%ld|%s|\n", statbuf.st_size, entry->d_name);
-      archiver(out, entry->d_name, depth + 4);
+      archiver(fname, entry->d_name, depth + 4);
     }
     else
     {
@@ -114,7 +114,7 @@ int main()
 {
   // Обзор каталога /home
   printf("Directory scan of /home:\n");
-  printdir("/home/komanyak/Документы/OS_Lab/Lab1/archiver/", 0);
+  archiver("outuuu.txt" ,"/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/", 0);
   printf("done.\n");
 
   exit(0);
