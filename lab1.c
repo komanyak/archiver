@@ -24,13 +24,12 @@
 // while((c = fgetc(in)) != EOF) fputc(c, out);
 // exit(0);
 
-void archiver(char *fname, char *dir, int depth)
+void archiver(FILE *out, char *dir, int depth)
 {
   DIR *dp;
   struct dirent *entry;
   struct stat statbuf;
-  FILE *out;
-  out = fopen(fname, "w");
+  
   if ((dp = opendir(dir)) == NULL)
   {
 
@@ -53,16 +52,16 @@ void archiver(char *fname, char *dir, int depth)
      
       fprintf(out, "1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
     
-      //printf("%*s%s/\n", depth, "", entry->d_name);
-      printf("1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
-      archiver(fname, entry->d_name, depth + 1);
+      printf("%*s%s/\n", depth, " ", entry->d_name);
+      //printf("1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
+      archiver(out, entry->d_name, depth + 1);
     }
     else
     {
 
       // записать в out "isDir(0 или 1)|file_size|file_name|"
-    //   printf("%*s%s\n", depth, " ", entry->d_name);
-      printf("0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
+      printf("%*s%s\n", depth, " ", entry->d_name);
+      // printf("0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
 
       fprintf(out, "0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
 
@@ -71,14 +70,17 @@ void archiver(char *fname, char *dir, int depth)
 
   chdir("..");
   closedir(dp);
-  fclose(out);
 }
 
 int main()
 {
+
+  char dirname[] = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/";
+  FILE *out;
+  out = fopen("1.txt", "ab");
   // Обзор каталога /home
-  printf("Directory scan of /home:\n");
-  archiver("fgdhdhfg.txt" ,"/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/", 0);
+  printf("\nDirectory scan of %s:\n", dirname);
+  archiver(out ,dirname, 0);
   printf("done.\n");
 
   exit(0);
