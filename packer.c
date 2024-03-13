@@ -2,80 +2,130 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
-void createArchive(FILE *archive, const char *directory)
-{
-  DIR *dir;
-  struct dirent *entry;
+#define MAX_FILENAME_LEN 1024
 
-  dir = opendir(directory);
-  if (dir == NULL)
-  {
-    perror("Error opening directory");
-    exit(EXIT_FAILURE);
-  }
+// Функция для создания архива
+void archive(const char *sourceDir, const char *archiveFile);
 
-  while ((entry = readdir(dir)) != NULL)
-  {
-    if (entry->d_type == DT_REG)
-    {
-      char filePath[256];
-      sprintf(filePath, "%s/%s", directory, entry->d_name);
+// Функция для записи информации о директории в файл info.txt
+void dir_info(FILE *info, const char *path);
 
-      FILE *file = fopen(filePath, "rb");
-      if (file == NULL)
-      {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
-      }
+// Функция для записи информации о файле или директории в файл info.txt
+void file_info(FILE *info, const char *path, const char *filename, off_t depth, int isDir);
 
-      fseek(file, 0, SEEK_END);
-      long fileSize = ftell(file);
-      fseek(file, 0, SEEK_SET);
-
-      fwrite(&fileSize, sizeof(long), 1, archive);
-
-      char buffer[1024];
-      size_t bytesRead;
-
-      while ((bytesRead = fread(buffer, 1, sizeof(buffer), file)) > 0)
-      {
-        fwrite(buffer, 1, bytesRead, archive);
-      }
-
-      fclose(file);
-    }
-    else if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
-    {
-      char subDirPath[256];
-      sprintf(subDirPath, "%s/%s", directory, entry->d_name);
-
-      createArchive(archive, subDirPath);
-    }
-  }
-
-  closedir(dir);
-}
+// Функция для создания архивного файла на основе файла info.txt
+void create_archive(const char *archiveFile, FILE *info);
 
 int main(int argc, char *argv[])
 {
   if (argc != 3)
   {
-    fprintf(stderr, "Usage: %s <archive_name> <directory>\n", argv[0]);
-    exit(EXIT_FAILURE);
+    fprintf(stderr, "Использование: %s <source_directory> <archive_file>\n", argv[0]);
+    return 1;
   }
 
-  FILE *archive = fopen(argv[1], "wb");
-  if (archive == NULL)
-  {
-    perror("Error creating archive");
-    exit(EXIT_FAILURE);
-  }
-
-  createArchive(archive, argv[2]);
-
-  fclose(archive);
-  printf("Archive created successfully.\n");
+  // Запуск архиватора
+  archive(argv[1], argv[2]);
 
   return 0;
+}
+
+// Функция archive объединяет функциональность архивации в одну
+void archive(const char *sourceDir, const char *archiveFile)
+{
+  FILE *info = fopen("info.txt", "w"); // Открытие файла info.txt для записи
+  if (info == NULL)
+  {
+    perror("Ошибка при открытии файла info.txt");
+    exit(EXIT_FAILURE);
+  }
+
+  // Запись информации о директории в файл info.txt
+  dir_info(info, sourceDir);
+  fclose(info); // Закрытие файла info.txt
+
+  // Создание архивного файла на основе файла info.txt
+  create_archive(archiveFile, info);
+
+  // Удаление временного файла info.txt
+  remove("info.txt");
+}
+
+// Функция для записи информации о директории в файл info.txt
+void dir_info(FILE *info, const char *path)
+{
+  fprintf(info, "|%s|", path); // Запись информации о директории в файл
+
+  struct dirent *pDirent;
+  DIR *pDir;
+  struct stat statbuf;
+
+  pDir = opendir(path); // Открытие директории
+  if (pDir == NULL)
+  {
+    perror("Не удалось открыть директорию");
+    exit(EXIT_FAILURE);
+  }
+
+  chdir(path); // Изменение текущей директории на указанную
+
+  while ((pDirent = readdir(pDir)) != NULL)
+  { // Обход содержимого директории
+    lstat(pDirent->d_name, &statbuf);
+    if (strcmp(pDirent->d_name, ".") == 0 || strcmp(pDirent->d_name, "..") == 0)
+      continue;
+
+    // Запись информации о файле или директории в файл info.txt
+    if (S_ISDIR(statbuf.st_mode))
+    {
+      file_info(info, path, pDirent->d_name, 0, 1);
+      dir_info(info, pDirent->d_name); // Рекурсивный вызов для поддиректории
+    }
+    else
+    {
+      file_info(info, path, pDirent->d_name, 0, 0);
+    }
+  }
+
+  chdir("..");    // Возврат на уровень выше
+  closedir(pDir); // Закрытие директории
+}
+
+// Функция для записи информации о файле или директории в файл info.txt
+void file_info(FILE *info, const char *path, const char *filename, off_t depth, int isDir)
+{
+  fprintf(info, "%ld|%d|%s|", depth, isDir, filename); // Запись информации в файл
+
+  if (!isDir)
+  {
+    char fullpath[MAX_FILENAME_LEN];
+    snprintf(fullpath, sizeof(fullpath), "%s/%s", path, filename);
+
+    struct stat statbuf;
+    lstat(fullpath, &statbuf);
+
+    fprintf(info, "%ld|", statbuf.st_size); // Запись размера файла
+  }
+}
+
+// Функция для создания архивного файла на основе файла info.txt
+void create_archive(const char *archiveFile, FILE *info)
+{
+  FILE *archive = fopen(archiveFile, "wb"); // Открытие архивного файла для записи
+  if (archive == NULL)
+  {
+    perror("Ошибка при открытии файла архива");
+    exit(EXIT_FAILURE);
+  }
+
+  fseek(info, 0, SEEK_SET); // Установка указателя файла info.txt в начало
+  char ch;
+  while ((ch = fgetc(info)) != EOF)
+  {
+    fputc(ch, archive); // Копирование содержимого файла info.txt в архив
+  }
+
+  fclose(archive); // Закрытие архивного файла
 }
