@@ -85,6 +85,8 @@ void restoreStructure(const char *infoFile, const char *rootPath)
   }
 
   char line[256];
+  char currentPath[256] = ""; // Путь к текущей директории
+
   while (fgets(line, sizeof(line), info))
   {
     int isDir, fileSize, depth;
@@ -97,15 +99,32 @@ void restoreStructure(const char *infoFile, const char *rootPath)
       exit(EXIT_FAILURE);
     }
 
+    // Обновление текущего пути в соответствии с уровнем вложенности
+    while (depth > 0)
+    {
+      char *lastSlash = strrchr(currentPath, '/');
+      if (lastSlash)
+      {
+        *lastSlash = '\0'; // Убираем последний слэш
+      }
+      else
+      {
+        break; // Достигнут корень, прерываем цикл
+      }
+      depth--;
+    }
+
     // Построение пути элемента
     char itemPath[256];
-    snprintf(itemPath, sizeof(itemPath), "%s/%s", rootPath, itemName);
+    snprintf(itemPath, sizeof(itemPath), "%s/%s", currentPath, itemName);
 
     // Создание папки или файла
     if (isDir)
     {
       printf("Creating directory: %s\n", itemPath);
       mkdir(itemPath, 0755);
+      strcat(currentPath, "/");
+      strcat(currentPath, itemName); // Обновляем текущий путь
     }
     else
     {
