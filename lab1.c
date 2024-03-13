@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-
-
 // char block[1024];
 // int in, out;
 // int nread;
@@ -29,7 +27,7 @@ void make_info(FILE *out, char *dir, int depth)
   DIR *dp;
   struct dirent *entry;
   struct stat statbuf;
-  
+
   if ((dp = opendir(dir)) == NULL)
   {
 
@@ -49,27 +47,27 @@ void make_info(FILE *out, char *dir, int depth)
       // записать в out "isDir(0 или 1)|dir_size|dir_name|"
       if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0)
         continue;
-     
+
       fprintf(out, "1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
-    
-      printf("%*s%s/\n", depth*4+1, "", entry->d_name);
-      //printf("1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
+
+      printf("%*s%s/\n", depth * 4 + 1, "", entry->d_name);
+      // printf("1|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
       make_info(out, entry->d_name, depth + 1);
     }
     else
     {
-      if(strcmp(strrchr(entry->d_name, '.'), ".gg") == 0)
-      { 
-        // arch_func
-        printf("%*s%s is a TXT file\n", depth*4+1, "", entry->d_name);
+      const char *extension = strrchr(entry->d_name, '.');
+      if (extension && strcmp(extension, ".gg") == 0)
+      {
+        // Это файл с расширением .gg, обработайте его соответствующим образом
+        printf("%*s%s is a GG file\n", depth * 4 + 1, "", entry->d_name);
       }
 
       // записать в out "isDir(0 или 1)|file_size|file_name|"
-      printf("%*s%s\n", depth*4+1, "", entry->d_name);
+      printf("%*s%s\n", depth * 4 + 1, "", entry->d_name);
       // printf("0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
 
       fprintf(out, "0|%ld|%ld|%s|\n", statbuf.st_size, depth, entry->d_name);
-
     }
   }
 
@@ -85,10 +83,8 @@ int main()
   out = fopen("out.txt", "ab");
   // Обзор каталога /home
   printf("\nDirectory scan of %s:\n", dirname);
-  make_info(out ,dirname, 0);
+  make_info(out, dirname, 0);
   printf("done.\n");
 
   exit(0);
 }
-
-
