@@ -83,7 +83,7 @@ void restoreStructure(const char *infoFile, const char *rootPath)
     perror("Failed to open information file");
     exit(EXIT_FAILURE);
   }
-
+  int currentDepth = 0;
   char line[256];
   while (fgets(line, sizeof(line), info))
   {
@@ -91,7 +91,7 @@ void restoreStructure(const char *infoFile, const char *rootPath)
     char itemName[256];
 
     // Разбор строки информации
-    if (sscanf(line, "%d|%d|%d|%255[^\n]", &isDir, &fileSize, &depth, itemName) != 4)
+    if (sscanf(line, "%d|%d|%d|%255[^|\n]", &isDir, &fileSize, &depth, itemName) != 4)
     {
       fprintf(stderr, "Invalid format in information file\n");
       exit(EXIT_FAILURE);
@@ -132,13 +132,13 @@ int main()
 
   char dirname[] = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/";
   FILE *out;
-  out = fopen("out.txt", "ab");
+  out = fopen("out.txt", "w");
   // Обзор каталога /home
   printf("\nDirectory scan of %s:\n", dirname);
   make_info(out, dirname, 0);
   printf("done.\n");
 
-  const char *infoFile = "out.txt";            // Путь к файлу с информационной частью
+  const char *infoFile = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/out.txt";            // Путь к файлу с информационной частью
   const char *rootPath = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/unpack"; // Корневая папка для восстановления структуры
 
   restoreStructure(infoFile, rootPath);

@@ -1,27 +1,13 @@
-0|55|0|outuuu.txt|
-0|6146396|0|Osnovyi_programmirovaniya_v_Linux_138094.pdf|
-1|4096|0|test_inside|
-1|4096|1|inside2|
-0|0|2|Новый текстовый файл.txt|
-0|0|1|ins22.txt|
-0|0|1|ins2.txt|
-0|747524|0|Ratnikov_Kilmishkin_3O-310B-20_Lr1_OS.docx|
-0|453977|0|Lab1_OS.docx|
-0|55|0|outuuu.txt|
-0|6146396|0|Osnovyi_programmirovaniya_v_Linux_138094.pdf|
-1|4096|0|test_inside|
-1|4096|1|inside2|
-0|0|2|Новый текстовый файл.txt|
-0|0|1|ins22.txt|
-0|0|1|ins2.txt|
-0|747524|0|Ratnikov_Kilmishkin_3O-310B-20_Lr1_OS.docx|
-0|453977|0|Lab1_OS.docx|
-0|55|0|outuuu.txt|
-0|6146396|0|Osnovyi_programmirovaniya_v_Linux_138094.pdf|
-1|4096|0|test_inside|
-1|4096|1|inside2|
-0|0|2|Новый текстовый файл.txt|
-0|0|1|ins22.txt|
-0|0|1|ins2.txt|
-0|747524|0|Ratnikov_Kilmishkin_3O-310B-20_Lr1_OS.docx|
-0|453977|0|Lab1_OS.docx|
+1|4096|0|1|
+1|4096|1|2|
+1|4096|2|4|
+1|4096|3|5|
+0|0|4|5.txt|
+0|0|3|4.txt|
+1|4096|3|6|
+0|0|4|6.txt|
+1|4096|2|3|
+0|0|3|3.txt|
+0|0|2|2.txt|
+0|0|1|1.txt|
+0|0|0|0.txt|
