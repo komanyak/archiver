@@ -77,6 +77,7 @@ void make_info(FILE *out, char *dir, int depth)
 
 void restoreStructure(const char *infoFile, const char *rootPath)
 {
+
   FILE *info = fopen(infoFile, "r");
   if (!info)
   {
@@ -132,7 +133,7 @@ int main()
 
   char dirname[] = "/home/komanyak/Документы/OS_Lab/Lab1/archiver/test/";
   FILE *out;
-  out = fopen("out.txt", "w");
+  out = fopen("/home/komanyak/Документы/OS_Lab/Lab1/archiver/out.txt", "w");
   // Обзор каталога /home
   printf("\nDirectory scan of %s:\n", dirname);
   make_info(out, dirname, 0);
